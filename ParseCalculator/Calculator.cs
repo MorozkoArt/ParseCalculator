@@ -41,6 +41,10 @@ namespace ParseCalculator
                     {
                         outputQueue.Add(currentNumber);
                         currentNumber = "";
+                        if (i < infix.Length && infix[i] == '(')
+                        {
+                            operatorStack.Push('*');
+                        }
                     }
 
                     if (IsOperator(c))
@@ -76,6 +80,11 @@ namespace ParseCalculator
                             throw new ArgumentException("Несоответствие скобок");
                         }
                         operatorStack.Pop();
+
+                        if ( i+1 < infix.Length && char.IsDigit(infix[i+1]))
+                        {
+                            operatorStack.Push('*');
+                        }
                         isUnary = false;
                     }
                     else
