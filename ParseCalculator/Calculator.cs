@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace ParseCalculator
 
         public Calculator(string expression)
         {
-            this.expression = expression.Replace(" ", ""); // Удаляем пробелы
+            this.expression = expression.Replace(" ", "");
         }
 
         public double Evaluate()
@@ -26,12 +27,16 @@ namespace ParseCalculator
             Stack<char> operatorStack = new Stack<char>();
             List<string> outputQueue = new List<string>();
             string currentNumber = "";
+            bool isUnary = true;
 
-            foreach (char c in infix)
+            for (int i = 0; i < infix.Length; i++)
             {
+                char c = infix[i];
+
                 if (char.IsDigit(c) || c == '.')
                 {
                     currentNumber += c;
+                    isUnary = false;
                 }
                 else
                 {
@@ -43,15 +48,24 @@ namespace ParseCalculator
 
                     if (IsOperator(c))
                     {
-                        while (operatorStack.Count > 0 && operatorStack.Peek() != '(' && Precedence(c) <= Precedence(operatorStack.Peek()))
+                        if (c == '-' && isUnary)
                         {
-                            outputQueue.Add(operatorStack.Pop().ToString());
+                            operatorStack.Push('~');
                         }
-                        operatorStack.Push(c);
+                        else
+                        {
+                            while (operatorStack.Count > 0 && operatorStack.Peek() != '(' && Precedence(c) <= Precedence(operatorStack.Peek()))
+                            {
+                                outputQueue.Add(operatorStack.Pop().ToString());
+                            }
+                            operatorStack.Push(c);
+                            isUnary = true;
+                        }
                     }
                     else if (c == '(')
                     {
                         operatorStack.Push(c);
+                        isUnary = true;
                     }
                     else if (c == ')')
                     {
@@ -59,11 +73,13 @@ namespace ParseCalculator
                         {
                             outputQueue.Add(operatorStack.Pop().ToString());
                         }
+
                         if (operatorStack.Count == 0)
                         {
                             throw new ArgumentException("Несоответствие скобок");
                         }
-                        operatorStack.Pop(); // Удаляем '('
+                        operatorStack.Pop();
+                        isUnary = false;
                     }
                     else
                     {
@@ -79,34 +95,41 @@ namespace ParseCalculator
 
             while (operatorStack.Count > 0)
             {
-                outputQueue.Add(operatorStack.Pop().ToString());
+                char op = operatorStack.Pop();
+                if (op != '(')
+                    outputQueue.Add(op.ToString());
             }
-
             return string.Join(" ", outputQueue);
         }
-
 
         private double EvaluateRPN(string rpn)
         {
             Stack<double> stack = new Stack<double>();
-            string[] tokens = rpn.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); // Удаляем пустые токены
+            string[] tokens = rpn.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string token in tokens)
             {
-                if (double.TryParse(token, out double num))
+                if (double.TryParse(token, NumberStyles.Any, CultureInfo.InvariantCulture, out double num))
                 {
-                    stack.Push(num);
+                    stack.Push(Math.Round(num, 4));
                 }
                 else if (IsOperator(token[0]))
                 {
-                    // Проверка на достаточное количество операндов ПЕРЕД выполнением операции
-                    if (stack.Count < 2)
+                    if (stack.Count < 2 && token[0] != '~')
                     {
                         throw new ArgumentException($"Недостаточно операндов для операции '{token}'");
                     }
-                    double operand2 = stack.Pop();
-                    double operand1 = stack.Pop();
-                    stack.Push(ApplyOperator(token[0], operand1, operand2));
+                    if (token[0] == '~')
+                    {
+                        double operand = stack.Pop();
+                        stack.Push(-operand);
+                    }
+                    else
+                    {
+                        double operand2 = stack.Pop();
+                        double operand1 = stack.Pop();
+                        stack.Push(ApplyOperator(token[0], operand1, operand2));
+                    }
                 }
                 else
                 {
@@ -118,19 +141,17 @@ namespace ParseCalculator
             {
                 throw new ArgumentException("Ошибка вычисления: Несоответствие количества операндов и операторов.");
             }
-
-            return stack.Pop();
+            return Math.Round(stack.Pop(), 5);
         }
-
-        private bool IsOperator(char c) => "+-*/()".IndexOf(c) != -1;
+        private bool IsOperator(char c) => "+-*/~".IndexOf(c) != -1;
 
         private int Precedence(char op)
         {
+            if (op == '~') return 3;
             if (op == '+' || op == '-') return 1;
             if (op == '*' || op == '/') return 2;
-            return 0; // Для '(' и ')'
+            return 0;
         }
-
         private double ApplyOperator(char op, double operand1, double operand2)
         {
             switch (op)
@@ -138,54 +159,15 @@ namespace ParseCalculator
                 case '+': return operand1 + operand2;
                 case '-': return operand1 - operand2;
                 case '*': return operand1 * operand2;
-                case '/': return operand2 == 0 ? throw new DivideByZeroException() : operand1 / operand2;
+                case '/':
+                    if (operand2 == 0)
+                    {
+                        throw new DivideByZeroException();
+                    }
+                    return operand1 / operand2;
                 default: throw new ArgumentException("Недопустимый оператор");
             }
         }
-
-
-        
-
-        /*
-        private string[] _expression;
-
-        public Calculator(string expression)
-        {
-            _expression = expression.Split(' ');
-        }
-        
-        public string Calculate()
-        {
-            var result = 0;
-            var num1 = int.Parse(_expression[0]);
-            var num2 = int.Parse(_expression[2]);
-            var operation = _expression[1];
-            return GetResult(result, num1, num2, operation).ToString();
-        }
-
-        private static int GetResult(int result, int num1, int num2, string operation)
-        {
-            switch (operation)
-            {
-                case ("+"):
-                    result = num1 + num2;
-                    break;
-                case ("-"):
-                    result = num1 - num2;
-                    break;
-                case ("*"):
-                    result = num1 * num2;
-                    break;
-                case ("/"):
-                    result = num1 / num2;
-                    break;
-                default:
-                    throw new FormatException();
-            }
-
-            return result;
-        }*/
     }
-    
 }
 
