@@ -13,6 +13,7 @@ namespace TestParseCalculator
         [InlineData("(2 + 3 * (5 - 2))", 11)]
         [InlineData("((2 + 10) / 2) + 5", 11)]
         [InlineData("10 / (2 * (1 + 1))", 2.5)]
+        [InlineData("2 + (((2+2)))", 6)]
 
         public void Calculate_OneOperationInTwoNumbers(string expression, double result)
         {

@@ -91,8 +91,9 @@ namespace ParseCalculator
             while (operatorStack.Count > 0)
             {
                 char op = operatorStack.Pop();
-                if (op != '(')
-                    outputQueue.Add(op.ToString());
+                if (op == '(')
+                    throw new ArgumentException("Несоответствие скобок");
+                outputQueue.Add(op.ToString());
             }
             return string.Join(" ", outputQueue);
         }
