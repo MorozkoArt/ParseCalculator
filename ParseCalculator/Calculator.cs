@@ -10,18 +10,15 @@ namespace ParseCalculator
     public class Calculator
     {
         private string expression;
-
         public Calculator(string expression)
         {
             this.expression = expression.Replace(" ", "");
         }
-
         public double Evaluate()
         {
             string rpn = ShuntingYard(expression);
             return EvaluateRPN(rpn);
         }
-
         private string ShuntingYard(string infix)
         {
             Stack<char> operatorStack = new Stack<char>();
@@ -87,12 +84,10 @@ namespace ParseCalculator
                     }
                 }
             }
-
             if (!string.IsNullOrEmpty(currentNumber))
             {
                 outputQueue.Add(currentNumber);
             }
-
             while (operatorStack.Count > 0)
             {
                 char op = operatorStack.Pop();
