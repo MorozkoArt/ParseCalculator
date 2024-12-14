@@ -1,24 +1,20 @@
 using ParseCalculator;
 
-
-namespace TestParseCalculator
+namespace Test_BasicArithmeticOperations
 {
     public class UnitTest1
     {
         [Theory]
-        [InlineData("10 - (2 * (3 + 1))", 2)]
-        [InlineData("(2+2)*2", 8)]
-        [InlineData("2 + 3.5 * 2", 9)]
-        [InlineData("10.7 - 2 * ((7/2 - 1) - (7.7 +2.4))", 25.9)]
-        [InlineData("2 +      2/1945", 2.00103)]
-        [InlineData("-2 + 4", 2)]
-
+        [InlineData("2 + 2", 4)]
+        [InlineData("5 - 3", 2)]
+        [InlineData("4 * 6", 24)]
+        [InlineData("10 / 2", 5)]
+        [InlineData("10 / 3", 3.33333)]
 
         public void Calculate_OneOperationInTwoNumbers(string expression, double result)
         {
             var calculator = new Calculator(expression);
             Assert.Equal(result, calculator.Evaluate());
         }
-
     }
 }
