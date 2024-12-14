@@ -12,8 +12,8 @@ namespace TestParseCalculator
         [InlineData("2+ ((2 + 2)", typeof(ArgumentException))]
         [InlineData("2 + (2+2", typeof(ArgumentException))]
         [InlineData("2 + 2+2)", typeof(ArgumentException))]
-        
         [InlineData("2 + a", typeof(ArgumentException))]
+
         public void Calculate_InvalidExpressions_ThrowsException(string expression, Type exceptionType)
         {
             var calculator = new Calculator(expression);

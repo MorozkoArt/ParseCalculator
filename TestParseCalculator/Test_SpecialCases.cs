@@ -15,6 +15,7 @@ namespace TestParseCalculator
         [InlineData("(2+2)2", 8)]
         [InlineData("(2+2)2+ 3(2(4(1-2)2))", -40)]
         [InlineData("-2(2+2)", -8)]
+        [InlineData("1000 + 20 - 100", 920)]
 
 
         public void Calculate_OneOperationInTwoNumbers(string expression, double result)
