@@ -14,7 +14,6 @@ namespace TestParseCalculator
         [InlineData("-2 * (3.5 + 1.5) / 2", -5)]
         [InlineData("-(5.5 + (2.5 * 2)) * 2", -21)]
 
-
         public void Calculate_OneOperationInTwoNumbers(string expression, double result)
         {
             var calculator = new Calculator(expression);

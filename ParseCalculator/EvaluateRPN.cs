@@ -29,7 +29,7 @@ namespace ParseCalculator
         {
             if (double.TryParse(token, NumberStyles.Any, CultureInfo.InvariantCulture, out double num))
             {
-                stack.Push(Math.Round(num, 4));
+                stack.Push(num);
             }
             else if (IsOperator(token[0]))
             {
